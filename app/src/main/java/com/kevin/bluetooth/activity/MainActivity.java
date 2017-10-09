@@ -1,4 +1,4 @@
-package com.kevin.bluetooth;
+package com.kevin.bluetooth.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -9,7 +9,13 @@ import android.os.Bundle;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+import com.kevin.bluetooth.R;
+import com.kevin.bluetooth.presenter.MainPresenter;
+import com.kevin.bluetooth.viewmodel.MainActView;
+
+public class MainActivity extends BaseActivity<MainActView, MainPresenter> implements CompoundButton.OnCheckedChangeListener, MainActView{
+
+	private final static String TAG = MainActivity.class.getSimpleName();
 
 	private Switch bluetoothStatus; // 开关蓝牙
 	private BluetoothAdapter mBtAdapter;
@@ -20,6 +26,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 		setContentView(R.layout.activity_main);
 		initView();
 		init();
+	}
+
+	@Override
+	protected MainPresenter createPresenter() {
+		return new MainPresenter(this);
 	}
 
 	private void initView() {
@@ -34,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 		} else {
 			mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		}
-		android.util.Log.v("kevin", "mBtAdapter.isEnabled(): " + mBtAdapter.isEnabled());
+		android.util.Log.v(TAG, "mBtAdapter.isEnabled(): " + mBtAdapter.isEnabled());
 		bluetoothStatus.setChecked(mBtAdapter.isEnabled());
 	}
 

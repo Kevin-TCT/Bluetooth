@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,16 +8,31 @@
         android:id="@+id/bluetooth_status_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="蓝牙状态："
-        android:layout_marginTop="3dp"/>
+        android:layout_marginTop="3dp"
+        android:text="蓝牙状态：" />
 
     <Switch
-        android:theme="@style/MySwitch"
         android:id="@+id/bluetooth_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/bluetooth_status_title"
         android:layout_marginLeft="6dp"
-        />
+        android:layout_toRightOf="@id/bluetooth_status_title"
+        android:theme="@style/MySwitch" />
+
+    <Button
+        android:id="@+id/scan_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="扫描设备"
+        android:layout_below="@+id/bluetooth_status"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:divider="#ffff0000"
+        android:dividerHeight="10dp"
+        android:layout_below="@+id/scan_btn"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>
