@@ -1,5 +1,6 @@
 package com.kevin.bluetooth.presenter;
 
+import com.kevin.bluetooth.bluetooth.SelfBluetoothManager;
 import com.kevin.bluetooth.viewmodel.MainActView;
 
 /**
@@ -8,12 +9,28 @@ import com.kevin.bluetooth.viewmodel.MainActView;
 
 public class MainPresenter extends BasePresenter<MainActView> {
 
-    public MainPresenter(MainActView view) {
+    private MainActView viewModel;
+    private SelfBluetoothManager selfBluetoothManager;
 
+    public MainPresenter(MainActView view) {
+        this.viewModel = view;
+        init();
     }
 
     @Override
     protected void init() {
+        selfBluetoothManager = new SelfBluetoothManager(viewModel.getActContext());
+    }
 
+    public boolean getBluetoothStatus() {
+        return selfBluetoothManager.getBluetoothStatus();
+    }
+
+    public void changeBluetoothStatus(boolean enable) {
+        selfBluetoothManager.changeBluetoothStatus(enable);
+    }
+
+    public void startScan() {
+        selfBluetoothManager.startScan();
     }
 }
