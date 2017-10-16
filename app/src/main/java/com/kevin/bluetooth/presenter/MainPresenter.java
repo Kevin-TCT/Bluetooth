@@ -1,6 +1,7 @@
 package com.kevin.bluetooth.presenter;
 
 import android.bluetooth.BluetoothDevice;
+import android.widget.Toast;
 
 import com.kevin.bluetooth.bluetooth.ResultListener;
 import com.kevin.bluetooth.bluetooth.SelfBluetoothManager;

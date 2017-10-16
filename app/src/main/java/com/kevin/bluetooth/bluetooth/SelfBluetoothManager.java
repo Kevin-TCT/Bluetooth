@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.widget.Toast;
 
 /**
  * Administrator on 2017/10/13 0013.
@@ -49,14 +50,20 @@ public class SelfBluetoothManager{
     }
 
     public void startScan() {
-        if (null != bluetooth) {
-            bluetooth.startScan();
+        if (mBtAdapter.isEnabled()) {
+            if (null != bluetooth) {
+                bluetooth.startScan();
+            }
+        } else {
+
         }
     }
 
     public void stopScan() {
-        if (null != bluetooth) {
-            bluetooth.stopScan();
+        if (mBtAdapter.isEnabled()) {
+            if (null != bluetooth) {
+                bluetooth.stopScan();
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.kevin.bluetooth.activity;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,8 +18,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.kevin.bluetooth.R;
+import com.kevin.bluetooth.bluetooth.BluetoothStateBroadcast;
 import com.kevin.bluetooth.presenter.MainPresenter;
 import com.kevin.bluetooth.recyclerview.BlueDevicesAdapter;
 import com.kevin.bluetooth.recyclerview.DividerItemDecoration;
@@ -27,12 +30,13 @@ import com.kevin.bluetooth.viewmodel.MainActView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity<MainActView, MainPresenter> implements CompoundButton.OnCheckedChangeListener, MainActView, View.OnClickListener {
+public class MainActivity extends BaseActivity<MainActView, MainPresenter> implements CompoundButton.OnCheckedChangeListener, MainActView, View.OnClickListener, BluetoothStateBroadcast.BlueStateListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private final static int PERMISSION_REQUEST_CODE = 1;
 
+    private Switch bluetoothStatus;
     private Button startScanBtn;
     private Button stopScanBtn;
     private Animation operatingAnim;
@@ -40,6 +44,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     private RecyclerView recyclerView;
     private BlueDevicesAdapter adapter;
     private ArrayList<BluetoothDevice> data;
+    private BluetoothStateBroadcast broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         setContentView(R.layout.activity_main);
         initData();
         initView();
+        registerBroadcast();
     }
 
     @Override
@@ -59,7 +65,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     }
 
     private void initView() {
-        Switch bluetoothStatus = (Switch) findViewById(R.id.bluetooth_status);
+        bluetoothStatus = (Switch) findViewById(R.id.bluetooth_status);
         bluetoothStatus.setOnCheckedChangeListener(this);
         bluetoothStatus.setChecked(mPresenter.getBluetoothStatus());
         startScanBtn = (Button) findViewById(R.id.btn_start);
@@ -76,6 +82,19 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         recyclerView.setAdapter(adapter);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(this);
         recyclerView.addItemDecoration(itemDecoration);
+    }
+
+    private void registerBroadcast() {
+        broadcastReceiver = new BluetoothStateBroadcast(this);
+        IntentFilter intentFilter = broadcastReceiver.makeFilter();
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     @Override
@@ -104,6 +123,17 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     }
 
     @Override
+    public void bluetoothOn() {
+        bluetoothStatus.setChecked(true);
+    }
+
+    @Override
+    public void bluetoothOff() {
+        bluetoothStatus.setChecked(false);
+        stopScan();
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start:
@@ -111,16 +141,18 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
                 /*stopScanBtn.setVisibility(View.VISIBLE);
                 loadingImg.startAnimation(operatingAnim);
                 mPresenter.startScan();*/
-                if (mPresenter.isSupportBle()) {
-                    checkPermission();
+                if (mPresenter.getBluetoothStatus()) {
+                    if (mPresenter.isSupportBle()) {
+                        checkPermission();
+                    } else {
+                        startScan();
+                    }
                 } else {
-                    startScan();
+                    Toast.makeText(this, "请先打开蓝牙", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_stop:
-                stopScanBtn.setVisibility(View.INVISIBLE);
-                loadingImg.clearAnimation();
-                mPresenter.stopScan();
+                stopScan();
                 break;
         }
     }
@@ -129,6 +161,12 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         stopScanBtn.setVisibility(View.VISIBLE);
         loadingImg.startAnimation(operatingAnim);
         mPresenter.startScan();
+    }
+
+    private void stopScan() {
+        stopScanBtn.setVisibility(View.INVISIBLE);
+        loadingImg.clearAnimation();
+        mPresenter.stopScan();
     }
 
     private void checkPermission() {
