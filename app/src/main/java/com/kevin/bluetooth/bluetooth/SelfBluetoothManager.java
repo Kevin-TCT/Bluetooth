@@ -10,14 +10,14 @@ import android.os.Build;
  * Administrator on 2017/10/13 0013.
  */
 
-public class SelfBluetoothManager {
+public class SelfBluetoothManager{
 
     private BluetoothAdapter mBtAdapter;
     private boolean isSupportBle;
     private BaseBluetooth bluetooth;
 
-    public SelfBluetoothManager(Context context) {
-        if (Build.VERSION.SDK_INT >= 18) {
+    public SelfBluetoothManager(Context context, ResultListener listener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             mBtAdapter = manager.getAdapter();
         } else {
@@ -26,7 +26,7 @@ public class SelfBluetoothManager {
         // 判断是否支持BLE
         isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (isSupportBle) {
-            bluetooth = new BluetoothLE(context, mBtAdapter);
+            bluetooth = new BluetoothLE(context, mBtAdapter, listener);
         } else {
             bluetooth = new BluetoothStandard();
         }

@@ -11,7 +11,9 @@ import java.lang.ref.WeakReference;
 
 public class ScanTimeoutHandler extends Handler {
 
-    private static final int OUT_TIME = 1500;
+    public static final int OUT_TIME_MILLIS = 15000;
+
+    public static final int WHAT_OUT_TIME = 1;
 
     private WeakReference<BaseBluetooth> reference;
 
@@ -22,6 +24,7 @@ public class ScanTimeoutHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         super.handleMessage(msg);
+        android.util.Log.d("Bluetooth", "------ScanTimeoutHandler time out-----");
         if (null != reference && null != reference.get()) {
             reference.get().scanTimeout();
         }

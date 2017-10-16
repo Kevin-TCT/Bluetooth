@@ -1,12 +1,12 @@
-package com.kevin.bluetooth.viewmodel;
+package com.kevin.bluetooth.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 
 /**
- * Administrator on 2017/10/9.
+ * Kevin-Tu on 2017/10/16 0016.
  */
 
-public interface MainActView extends BaseView {
+public interface ResultListener {
 
     void scannedDevice(BluetoothDevice device);
 

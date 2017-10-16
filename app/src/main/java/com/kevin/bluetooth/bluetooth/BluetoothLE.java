@@ -13,8 +13,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.RequiresApi;
-import android.text.format.DateUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -34,10 +32,12 @@ public class BluetoothLE extends BaseBluetooth {
     private BLEService bleService;
     private ScanCallback scanCallback;
     private LeScanCallback leScanCallback;
+    private ResultListener listener;
 
-    public BluetoothLE(Context context, BluetoothAdapter btAdapter) {
+    public BluetoothLE(Context context, BluetoothAdapter btAdapter, ResultListener listener) {
         this.mContext = context;
         this.mBtAdapter = btAdapter;
+        this.listener = listener;
         timeoutHandler = new ScanTimeoutHandler(this);
         Intent gattServiceIntent = new Intent(context, BLEService.class);
         mContext.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -46,6 +46,8 @@ public class BluetoothLE extends BaseBluetooth {
     @Override
     public void startScan() {
         // TODO 需要加上状态判断，避免重复扫描，或已经连接后再扫描，根据业务逻辑来
+        timeoutHandler.removeMessages(ScanTimeoutHandler.WHAT_OUT_TIME); // 取消时间监控，避免有上次未连接成功未取消情况
+        timeoutHandler.sendEmptyMessageDelayed(ScanTimeoutHandler.WHAT_OUT_TIME, ScanTimeoutHandler.OUT_TIME_MILLIS);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {// 在android5.0及之后，google关于BLE的搜索提供了新的方法
             BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
             if (null == scanCallback) {
@@ -63,6 +65,7 @@ public class BluetoothLE extends BaseBluetooth {
 
     @Override
     public void stopScan() {
+        timeoutHandler.removeMessages(ScanTimeoutHandler.WHAT_OUT_TIME);
         if (status == STATE_SCANNING) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
@@ -76,7 +79,8 @@ public class BluetoothLE extends BaseBluetooth {
 
     @Override
     public void scanTimeout() {
-
+        listener.scanTimeout();
+        stopScan();
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -109,18 +113,22 @@ public class BluetoothLE extends BaseBluetooth {
             if (null == reference || null == reference.get()) {
                 return;
             }
-            final BluetoothDevice device = result.getDevice();
-
+            reference.get().listener.scannedDevice(result.getDevice());
         }
 
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
+            if (null == reference || null == reference.get()) {
+                return;
+            }
+            reference.get().listener.scanFailed();
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             super.onBatchScanResults(results);
+            android.util.Log.d(TAG, "-----onBatchScanResults()----results.size(): " + results.size());
         }
     }
 
@@ -135,7 +143,7 @@ public class BluetoothLE extends BaseBluetooth {
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             android.util.Log.d("bluetooth", "-----onLeScan()------device: " + device);
             if (null != reference || null != reference.get()) {
-
+                reference.get().listener.scannedDevice(device);
             }
         }
     }

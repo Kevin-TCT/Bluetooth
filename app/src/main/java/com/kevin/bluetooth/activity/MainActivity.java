@@ -1,11 +1,14 @@
 package com.kevin.bluetooth.activity;
 
 import android.Manifest;
+import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,6 +20,8 @@ import android.widget.Switch;
 
 import com.kevin.bluetooth.R;
 import com.kevin.bluetooth.presenter.MainPresenter;
+import com.kevin.bluetooth.recyclerview.BlueDevicesAdapter;
+import com.kevin.bluetooth.recyclerview.DividerItemDecoration;
 import com.kevin.bluetooth.viewmodel.MainActView;
 
 import java.util.ArrayList;
@@ -32,17 +37,25 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     private Button stopScanBtn;
     private Animation operatingAnim;
     private ImageView loadingImg;
+    private RecyclerView recyclerView;
+    private BlueDevicesAdapter adapter;
+    private ArrayList<BluetoothDevice> data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initData();
         initView();
     }
 
     @Override
     protected MainPresenter createPresenter() {
         return new MainPresenter(this);
+    }
+
+    private void  initData() {
+        data = new ArrayList<>();
     }
 
     private void initView() {
@@ -56,11 +69,38 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         loadingImg = (ImageView) findViewById(R.id.img_loading);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rotate);
         operatingAnim.setInterpolator(new LinearInterpolator());
+
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new BlueDevicesAdapter(this, data);
+        recyclerView.setAdapter(adapter);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(this);
+        recyclerView.addItemDecoration(itemDecoration);
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         mPresenter.changeBluetoothStatus(isChecked);
+    }
+
+    @Override
+    public void scannedDevice(BluetoothDevice device) {
+        if (!data.contains(device)) {
+            data.add(device);
+            adapter.notifyItemInserted(data.size() - 1);
+        }
+    }
+
+    @Override
+    public void scanTimeout() {
+        stopScanBtn.setVisibility(View.INVISIBLE);
+        loadingImg.clearAnimation();
+    }
+
+    @Override
+    public void scanFailed() {
+        stopScanBtn.setVisibility(View.INVISIBLE);
+        loadingImg.clearAnimation();
     }
 
     @Override
@@ -71,8 +111,11 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
                 /*stopScanBtn.setVisibility(View.VISIBLE);
                 loadingImg.startAnimation(operatingAnim);
                 mPresenter.startScan();*/
-
-                checkPermission();
+                if (mPresenter.isSupportBle()) {
+                    checkPermission();
+                } else {
+                    startScan();
+                }
                 break;
             case R.id.btn_stop:
                 stopScanBtn.setVisibility(View.INVISIBLE);
@@ -80,6 +123,12 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
                 mPresenter.stopScan();
                 break;
         }
+    }
+
+    private void startScan() {
+        stopScanBtn.setVisibility(View.VISIBLE);
+        loadingImg.startAnimation(operatingAnim);
+        mPresenter.startScan();
     }
 
     private void checkPermission() {
@@ -103,9 +152,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     private void onPermissionGranted(String permission) {
         switch (permission) {
             case Manifest.permission.ACCESS_FINE_LOCATION:
-                stopScanBtn.setVisibility(View.VISIBLE);
-                loadingImg.startAnimation(operatingAnim);
-                mPresenter.startScan();
+                startScan();
                 break;
         }
     }

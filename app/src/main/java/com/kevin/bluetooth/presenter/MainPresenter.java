@@ -1,5 +1,8 @@
 package com.kevin.bluetooth.presenter;
 
+import android.bluetooth.BluetoothDevice;
+
+import com.kevin.bluetooth.bluetooth.ResultListener;
 import com.kevin.bluetooth.bluetooth.SelfBluetoothManager;
 import com.kevin.bluetooth.viewmodel.MainActView;
 
@@ -7,7 +10,7 @@ import com.kevin.bluetooth.viewmodel.MainActView;
  * Administrator on 2017/10/9.
  */
 
-public class MainPresenter extends BasePresenter<MainActView> {
+public class MainPresenter extends BasePresenter<MainActView> implements ResultListener {
 
     private MainActView viewModel;
     private SelfBluetoothManager selfBluetoothManager;
@@ -19,7 +22,7 @@ public class MainPresenter extends BasePresenter<MainActView> {
 
     @Override
     protected void init() {
-        selfBluetoothManager = new SelfBluetoothManager(viewModel.getActContext());
+        selfBluetoothManager = new SelfBluetoothManager(viewModel.getActContext(), this);
     }
 
     public boolean getBluetoothStatus() {
@@ -36,5 +39,24 @@ public class MainPresenter extends BasePresenter<MainActView> {
 
     public void stopScan() {
         selfBluetoothManager.stopScan();
+    }
+
+    public boolean isSupportBle() {
+        return selfBluetoothManager.isSupportBle();
+    }
+
+    @Override
+    public void scannedDevice(BluetoothDevice device) {
+        viewModel.scannedDevice(device);
+    }
+
+    @Override
+    public void scanTimeout() {
+        viewModel.scanTimeout();
+    }
+
+    @Override
+    public void scanFailed() {
+        viewModel.scanFailed();
     }
 }
