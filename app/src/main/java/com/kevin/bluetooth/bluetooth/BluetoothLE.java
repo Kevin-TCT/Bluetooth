@@ -105,6 +105,7 @@ public class BluetoothLE extends BaseBluetooth {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
+            android.util.Log.d(TAG, "-----onScanResult()----ScanResult: " + result);
             if (null == reference || null == reference.get()) {
                 return;
             }
@@ -132,7 +133,7 @@ public class BluetoothLE extends BaseBluetooth {
 
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            android.util.Log.d("bluetooth", "device: " + device);
+            android.util.Log.d("bluetooth", "-----onLeScan()------device: " + device);
             if (null != reference || null != reference.get()) {
 
             }
