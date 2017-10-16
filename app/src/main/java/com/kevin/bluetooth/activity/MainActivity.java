@@ -233,7 +233,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
             if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
                 // 线性式布局有2个方向
                 dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN; // 上下拖拽
-                //swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END; // 左右滑动
+                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END; // 左右滑动
             }
             return makeMovementFlags(dragFlags, swipeFlags); // swipeFlags 为0的话item不滑动
         }
@@ -253,7 +253,8 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
+            data.remove(viewHolder.getAdapterPosition());
+            adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
         }
 
         /**
