@@ -4,12 +4,15 @@ import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -60,7 +63,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         return new MainPresenter(this);
     }
 
-    private void  initData() {
+    private void initData() {
         data = new ArrayList<>();
     }
 
@@ -76,12 +79,19 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rotate);
         operatingAnim.setInterpolator(new LinearInterpolator());
 
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new BlueDevicesAdapter(this, data);
         recyclerView.setAdapter(adapter);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(this);
         recyclerView.addItemDecoration(itemDecoration);
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new TouchHelperCallBack());
+        touchHelper.attachToRecyclerView(recyclerView);
     }
 
     private void registerBroadcast() {
@@ -208,6 +218,87 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
                     }
                 }
                 break;
+        }
+    }
+
+    /**
+     * RecyclerView拖拽功能
+     */
+    private class TouchHelperCallBack extends ItemTouchHelper.Callback {
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            int dragFlags = 0;
+            int swipeFlags = 0;
+            if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+                // 线性式布局有2个方向
+                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN; // 上下拖拽
+                //swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END; // 左右滑动
+            }
+            return makeMovementFlags(dragFlags, swipeFlags); // swipeFlags 为0的话item不滑动
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+
+            BluetoothDevice moveItem = data.get(from);
+            data.remove(from);
+            data.add(to, moveItem);//交换数据链表中数据的位置
+
+            adapter.notifyItemMoved(from, to);//更新适配器中item的位置
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+        }
+
+        /**
+         * 拖动开始
+         *
+         * @param viewHolder
+         * @param actionState
+         */
+        @Override
+        public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+            super.onSelectedChanged(viewHolder, actionState);
+            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                viewHolder.itemView.setBackgroundColor(Color.GRAY);
+            }
+        }
+
+        /**
+         * 当item视图变化时调用
+         *
+         * @param c
+         * @param recyclerView
+         * @param viewHolder
+         * @param dX
+         * @param dY
+         * @param actionState
+         * @param isCurrentlyActive
+         */
+        @Override
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            //根据item滑动偏移的值修改item透明度。screenwidth是我提前获得的屏幕宽度
+            //viewHolder.itemView.setAlpha(1-Math.abs(dX)/screenwidth);
+            viewHolder.itemView.setAlpha(1 - Math.abs(dX) / 1080);
+        }
+
+        /**
+         * 当item拖拽完成时调用
+         *
+         * @param recyclerView
+         * @param viewHolder
+         */
+        @Override
+        public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+            viewHolder.itemView.setBackgroundColor(Color.WHITE);
         }
     }
 }
