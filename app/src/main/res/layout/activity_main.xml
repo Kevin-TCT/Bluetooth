@@ -19,18 +19,43 @@
         android:layout_toRightOf="@id/bluetooth_status_title"
         android:theme="@style/MySwitch" />
 
-    <Button
-        android:id="@+id/scan_btn"
+    <LinearLayout
+        android:id="@+id/scan_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="扫描设备"
-        android:layout_below="@+id/bluetooth_status"/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_below="@+id/bluetooth_status">
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始扫描" />
+
+        <Button
+            android:id="@+id/btn_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="停止扫描"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/img_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="30dp"
+            android:src="@mipmap/ic_loading" />
+
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:divider="#ffff0000"
         android:dividerHeight="10dp"
-        android:layout_below="@+id/scan_btn"
+        android:layout_below="@+id/scan_layout"
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

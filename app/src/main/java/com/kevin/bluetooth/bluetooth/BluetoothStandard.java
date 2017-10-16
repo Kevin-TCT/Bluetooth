@@ -1,14 +1,14 @@
 package com.kevin.bluetooth.bluetooth;
 
 /**
- * Bluetooth Low Energy 低功耗蓝牙
+ * 经典蓝牙
  */
 
-public class BLEBluetooth extends BaseBluetooth {
+public class BluetoothStandard extends BaseBluetooth {
 
     private ScanTimeoutHandler timeoutHandler;
 
-    public BLEBluetooth() {
+    public BluetoothStandard() {
         timeoutHandler = new ScanTimeoutHandler(this);
     }
 

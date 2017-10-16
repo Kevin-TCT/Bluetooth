@@ -33,4 +33,8 @@ public class MainPresenter extends BasePresenter<MainActView> {
     public void startScan() {
         selfBluetoothManager.startScan();
     }
+
+    public void stopScan() {
+        selfBluetoothManager.stopScan();
+    }
 }

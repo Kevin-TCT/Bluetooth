@@ -5,10 +5,6 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Administrator on 2017/10/13 0013.
@@ -30,9 +26,9 @@ public class SelfBluetoothManager {
         // 判断是否支持BLE
         isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (isSupportBle) {
-            bluetooth = new BLEBluetooth();
+            bluetooth = new BluetoothLE(context, mBtAdapter);
         } else {
-            bluetooth = new StandardBluetooth();
+            bluetooth = new BluetoothStandard();
         }
     }
 
@@ -62,5 +58,9 @@ public class SelfBluetoothManager {
         if (null != bluetooth) {
             bluetooth.stopScan();
         }
+    }
+
+    public boolean isSupportBle() {
+        return isSupportBle;
     }
 }

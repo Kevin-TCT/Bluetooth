@@ -6,7 +6,8 @@ android {
     defaultConfig {
         applicationId "com.kevin.bluetooth"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 22
+        // sdk version 23 is android6.0, need request permission in runtime
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
