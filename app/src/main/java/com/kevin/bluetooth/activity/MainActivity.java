@@ -28,12 +28,14 @@ import com.kevin.bluetooth.bluetooth.BluetoothStateBroadcast;
 import com.kevin.bluetooth.presenter.MainPresenter;
 import com.kevin.bluetooth.recyclerview.BlueDevicesAdapter;
 import com.kevin.bluetooth.recyclerview.DividerItemDecoration;
+import com.kevin.bluetooth.recyclerview.RecyclerViewItemListener;
 import com.kevin.bluetooth.viewmodel.MainActView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity<MainActView, MainPresenter> implements CompoundButton.OnCheckedChangeListener, MainActView, View.OnClickListener, BluetoothStateBroadcast.BlueStateListener {
+public class MainActivity extends BaseActivity<MainActView, MainPresenter> implements CompoundButton.OnCheckedChangeListener, MainActView, View
+        .OnClickListener, BluetoothStateBroadcast.BlueStateListener, RecyclerViewItemListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -85,7 +87,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     private void initRecyclerView() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new BlueDevicesAdapter(this, data);
+        adapter = new BlueDevicesAdapter(this, data, this);
         recyclerView.setAdapter(adapter);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(this);
         recyclerView.addItemDecoration(itemDecoration);
@@ -221,6 +223,13 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         }
     }
 
+    @Override
+    public void onItemClick(int position) {
+        BluetoothDevice device = data.get(position);
+        data.remove(position);
+        adapter.notifyItemRemoved(position);
+    }
+
     /**
      * RecyclerView拖拽功能
      */
@@ -283,7 +292,8 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
          * @param isCurrentlyActive
          */
         @Override
-        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean
+                isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             //根据item滑动偏移的值修改item透明度。screenwidth是我提前获得的屏幕宽度
             //viewHolder.itemView.setAlpha(1-Math.abs(dX)/screenwidth);

@@ -21,7 +21,7 @@ public class DeviceViewHolder extends RecyclerView.ViewHolder {
 
     public DeviceViewHolder(View itemView, View.OnClickListener itemClick) {
         super(itemView);
-        relativeLayout = (RelativeLayout) itemView.findViewById(R.id.relative_layout);
+        relativeLayout = (RelativeLayout) itemView.findViewById(R.id.item_layout);
         deviceNameTv = (TextView) itemView.findViewById(R.id.txt_name);
         deviceMacTv = (TextView) itemView.findViewById(R.id.txt_mac);
         rssiTv = (TextView) itemView.findViewById(R.id.txt_rssi);

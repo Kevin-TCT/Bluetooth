@@ -20,10 +20,12 @@ public class BlueDevicesAdapter extends RecyclerView.Adapter {
     private Context mContext;
     private List<BluetoothDevice> devices;
     private LayoutInflater layoutInflater;
+    private RecyclerViewItemListener recyclerViewItemListener;
 
-    public BlueDevicesAdapter(Context context, List<BluetoothDevice> devices) {
+    public BlueDevicesAdapter(Context context, List<BluetoothDevice> devices, RecyclerViewItemListener itemListener) {
         this.mContext = context;
         this.devices = devices;
+        this.recyclerViewItemListener = itemListener;
         layoutInflater = LayoutInflater.from(context);
     }
 
@@ -60,7 +62,12 @@ public class BlueDevicesAdapter extends RecyclerView.Adapter {
     private View.OnClickListener itemClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            switch (v.getId()) {
+                case R.id.item_layout:
+                    HolderEntity entity = (HolderEntity) v.getTag();
+                    recyclerViewItemListener.onItemClick(entity.getPosition());
+                    break;
+            }
         }
     };
 }
