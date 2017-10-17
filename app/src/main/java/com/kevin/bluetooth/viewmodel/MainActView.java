@@ -10,6 +10,8 @@ public interface MainActView extends BaseView {
 
     void scannedDevice(BluetoothDevice device);
 
+    void stopScan();
+
     void scanTimeout();
 
     void scanFailed();

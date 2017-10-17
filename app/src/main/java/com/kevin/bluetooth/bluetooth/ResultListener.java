@@ -10,6 +10,8 @@ public interface ResultListener {
 
     void scannedDevice(BluetoothDevice device);
 
+    void stopScanLis();
+
     void scanTimeout();
 
     void scanFailed();

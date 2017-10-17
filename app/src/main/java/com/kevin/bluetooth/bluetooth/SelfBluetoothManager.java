@@ -1,11 +1,11 @@
 package com.kevin.bluetooth.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.widget.Toast;
 
 /**
  * Administrator on 2017/10/13 0013.
@@ -24,6 +24,7 @@ public class SelfBluetoothManager{
         } else {
             mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         }
+        //mBtAdapter.getBondedDevices()
         // 判断是否支持BLE
         isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (isSupportBle) {
@@ -49,16 +50,17 @@ public class SelfBluetoothManager{
         }
     }
 
+    public boolean isSupportBle() {
+        return isSupportBle;
+    }
+
     public void startScan() {
         if (mBtAdapter.isEnabled()) {
             if (null != bluetooth) {
                 bluetooth.startScan();
             }
-        } else {
-
         }
     }
-
     public void stopScan() {
         if (mBtAdapter.isEnabled()) {
             if (null != bluetooth) {
@@ -67,7 +69,19 @@ public class SelfBluetoothManager{
         }
     }
 
-    public boolean isSupportBle() {
-        return isSupportBle;
+    public void connectDevice(BluetoothDevice device) {
+        if (mBtAdapter.isEnabled()) {
+            if (null != bluetooth) {
+                bluetooth.connectDevice(device);
+            }
+        }
+    }
+
+    public void disConnectedDevice(BluetoothDevice device) {
+        if (mBtAdapter.isEnabled()) {
+            if (null != bluetooth) {
+                bluetooth.disConnectedDevice(device);
+            }
+        }
     }
 }

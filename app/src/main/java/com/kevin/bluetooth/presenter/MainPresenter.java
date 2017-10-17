@@ -34,6 +34,10 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
         selfBluetoothManager.changeBluetoothStatus(enable);
     }
 
+    public boolean isSupportBle() {
+        return selfBluetoothManager.isSupportBle();
+    }
+
     public void startScan() {
         selfBluetoothManager.startScan();
     }
@@ -42,13 +46,22 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
         selfBluetoothManager.stopScan();
     }
 
-    public boolean isSupportBle() {
-        return selfBluetoothManager.isSupportBle();
+    public void connectDevice(BluetoothDevice device) {
+
+    }
+
+    public void disConnectedDevice(BluetoothDevice device) {
+
     }
 
     @Override
     public void scannedDevice(BluetoothDevice device) {
         viewModel.scannedDevice(device);
+    }
+
+    @Override
+    public void stopScanLis() {
+        viewModel.stopScan();
     }
 
     @Override

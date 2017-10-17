@@ -83,6 +83,24 @@ public class BluetoothLE extends BaseBluetooth {
         stopScan();
     }
 
+    @Override
+    public void connectDevice(BluetoothDevice device) {
+        if (null != bleService) {
+            listener.stopScanLis();
+            stopScan();
+            bleService.connectDevice(device);
+            // TODO 状态值有问题
+            status = STATE_CONNECTING;
+        }
+    }
+
+    @Override
+    public void disConnectedDevice(BluetoothDevice device) {
+        if (null != bleService) {
+            bleService.disConnectedDevice();
+        }
+    }
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override

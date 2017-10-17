@@ -1,6 +1,8 @@
 package com.kevin.bluetooth.bluetooth;
 
 
+import android.bluetooth.BluetoothDevice;
+
 public abstract class BaseBluetooth {
 
     public static final int STATE_DISCONNECTED = 0;
@@ -16,4 +18,8 @@ public abstract class BaseBluetooth {
     public abstract void stopScan();
 
     public abstract void scanTimeout();
+
+    public abstract void connectDevice(BluetoothDevice device);
+
+    public abstract void disConnectedDevice(BluetoothDevice device);
 }

@@ -175,7 +175,8 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
         mPresenter.startScan();
     }
 
-    private void stopScan() {
+    @Override
+    public void stopScan() {
         stopScanBtn.setVisibility(View.INVISIBLE);
         loadingImg.clearAnimation();
         mPresenter.stopScan();
@@ -225,9 +226,7 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
 
     @Override
     public void onItemClick(int position) {
-        BluetoothDevice device = data.get(position);
-        data.remove(position);
-        adapter.notifyItemRemoved(position);
+        mPresenter.connectDevice(data.get(position));
     }
 
     /**
