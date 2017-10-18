@@ -15,4 +15,10 @@ public interface MainActView extends BaseView {
     void scanTimeout();
 
     void scanFailed();
+
+    void onConnectFail();
+
+    void onConnectSuccess();
+
+    void onDisConnected();
 }

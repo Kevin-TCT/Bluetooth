@@ -2,22 +2,26 @@ package com.kevin.bluetooth.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import java.util.List;
+
 /**
  * Administrator on 2017/10/13 0013.
  */
 
-public class SelfBluetoothManager{
+public class SelfBluetoothManager {
 
     private BluetoothAdapter mBtAdapter;
     private boolean isSupportBle;
     private BaseBluetooth bluetooth;
 
-    public SelfBluetoothManager(Context context, ResultListener listener) {
+    public SelfBluetoothManager(Context context, ResultListener listener, BaseBluetooth.BlueHandleCallback callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             mBtAdapter = manager.getAdapter();
@@ -28,7 +32,7 @@ public class SelfBluetoothManager{
         // 判断是否支持BLE
         isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (isSupportBle) {
-            bluetooth = new BluetoothLE(context, mBtAdapter, listener);
+            bluetooth = new BluetoothLE(context, mBtAdapter, listener, callback);
         } else {
             bluetooth = new BluetoothStandard();
         }
@@ -61,6 +65,7 @@ public class SelfBluetoothManager{
             }
         }
     }
+
     public void stopScan() {
         if (mBtAdapter.isEnabled()) {
             if (null != bluetooth) {
@@ -82,6 +87,19 @@ public class SelfBluetoothManager{
             if (null != bluetooth) {
                 bluetooth.disConnectedDevice(device);
             }
+        }
+    }
+
+    public List<BluetoothGattService> getSupportedGattServices() {
+        if (null != bluetooth && bluetooth instanceof BluetoothLE) {
+            return ((BluetoothLE) bluetooth).getSupportedGattServices();
+        }
+        return null;
+    }
+
+    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enable, byte[] descriptorValue, String uuidStr) {
+        if (null != bluetooth && bluetooth instanceof BluetoothLE) {
+            ((BluetoothLE) bluetooth).setCharacteristicNotification(characteristic, enable, descriptorValue, uuidStr);
         }
     }
 }

@@ -22,4 +22,26 @@ public abstract class BaseBluetooth {
     public abstract void connectDevice(BluetoothDevice device);
 
     public abstract void disConnectedDevice(BluetoothDevice device);
+
+    public interface BlueStateListener {
+
+        void updateBlueState(int state);
+    }
+
+    /**
+     * 蓝牙连接相关回调借口
+     */
+    public interface BlueHandleCallback {
+        //void onConnecting();
+
+        void onConnectFail();
+
+        void onConnectSuccess();
+
+        void onDisConnected();
+
+        void onServicesDiscovered();
+
+        void onCharacteristicChange(byte[] data);
+    }
 }

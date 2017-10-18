@@ -1,20 +1,29 @@
 package com.kevin.bluetooth.presenter;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
-import android.widget.Toast;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 
+import com.kevin.bluetooth.bluetooth.BaseBluetooth;
 import com.kevin.bluetooth.bluetooth.ResultListener;
 import com.kevin.bluetooth.bluetooth.SelfBluetoothManager;
 import com.kevin.bluetooth.viewmodel.MainActView;
+
+import java.util.List;
 
 /**
  * Administrator on 2017/10/9.
  */
 
-public class MainPresenter extends BasePresenter<MainActView> implements ResultListener {
+@SuppressLint("NewApi")
+public class MainPresenter extends BasePresenter<MainActView> implements ResultListener, BaseBluetooth.BlueHandleCallback {
 
     private MainActView viewModel;
     private SelfBluetoothManager selfBluetoothManager;
+    private BluetoothGattCharacteristic mWrightCharacteristic; // 写的特征
+    private int mDevType = 0;
 
     public MainPresenter(MainActView view) {
         this.viewModel = view;
@@ -23,7 +32,7 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
 
     @Override
     protected void init() {
-        selfBluetoothManager = new SelfBluetoothManager(viewModel.getActContext(), this);
+        selfBluetoothManager = new SelfBluetoothManager(viewModel.getActContext(), this, this);
     }
 
     public boolean getBluetoothStatus() {
@@ -47,11 +56,16 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
     }
 
     public void connectDevice(BluetoothDevice device) {
-
+        selfBluetoothManager.connectDevice(device);
+        if (device.getName().equals("Dual-SPP")) {
+            mDevType = 1;
+        } else {
+            mDevType = 2;
+        }
     }
 
     public void disConnectedDevice(BluetoothDevice device) {
-
+        selfBluetoothManager.disConnectedDevice(device);
     }
 
     @Override
@@ -72,5 +86,57 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
     @Override
     public void scanFailed() {
         viewModel.scanFailed();
+    }
+
+    @Override
+    public void onConnectFail() {
+        viewModel.onConnectFail();
+    }
+
+    @Override
+    public void onConnectSuccess() {
+        viewModel.onConnectSuccess();
+    }
+
+    @Override
+    public void onDisConnected() {
+        viewModel.onDisConnected();
+    }
+
+    @Override
+    public void onServicesDiscovered() {
+        List<BluetoothGattService> gattServices = selfBluetoothManager.getSupportedGattServices();
+        // TODO 只关注想关注的属性
+        if (null != gattServices && gattServices.size() > 0) {
+            for (BluetoothGattService service : gattServices) {
+                if (!service.getUuid().toString().startsWith("0000fff0")) {
+                    continue;
+                }
+
+                List<BluetoothGattCharacteristic> gattCharacteristics = service.getCharacteristics();
+                // Loops through available Characteristics.
+                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                    final int charaProp = gattCharacteristic.getProperties();
+                    if (gattCharacteristic.getUuid().toString().startsWith("0000fff2")) {
+                        mWrightCharacteristic = gattCharacteristic;
+                    }
+                    if (((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) || ((charaProp | BluetoothGattCharacteristic
+                            .PROPERTY_INDICATE) > 0)) {
+                        if (gattCharacteristic.getUuid().toString().startsWith("0000fff1")) {
+                            selfBluetoothManager.setCharacteristicNotification(gattCharacteristic, true, mDevType == 1 ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.ENABLE_INDICATION_VALUE, "00002902-0000-1000-8000-00805f9b34fb");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 处理接收的蓝牙数据
+     * @param data
+     */
+    @Override
+    public void onCharacteristicChange(byte[] data) {
+
     }
 }

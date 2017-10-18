@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -22,7 +24,7 @@ import java.util.List;
  */
 
 @SuppressLint("NewApi")
-public class BluetoothLE extends BaseBluetooth {
+public class BluetoothLE extends BaseBluetooth implements BaseBluetooth.BlueStateListener {
 
     private static final String TAG = BluetoothLE.class.getSimpleName();
 
@@ -33,11 +35,13 @@ public class BluetoothLE extends BaseBluetooth {
     private ScanCallback scanCallback;
     private LeScanCallback leScanCallback;
     private ResultListener listener;
+    private BlueHandleCallback blueHandleCallback;
 
-    public BluetoothLE(Context context, BluetoothAdapter btAdapter, ResultListener listener) {
+    public BluetoothLE(Context context, BluetoothAdapter btAdapter, ResultListener listener, BlueHandleCallback callback) {
         this.mContext = context;
         this.mBtAdapter = btAdapter;
         this.listener = listener;
+        this.blueHandleCallback = callback;
         timeoutHandler = new ScanTimeoutHandler(this);
         Intent gattServiceIntent = new Intent(context, BLEService.class);
         mContext.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -101,12 +105,27 @@ public class BluetoothLE extends BaseBluetooth {
         }
     }
 
+    public List<BluetoothGattService> getSupportedGattServices() {
+        if (null != bleService) {
+            return bleService.getSupportedGattServices();
+        }
+        return null;
+    }
+
+    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enable, byte[] descriptorValue, String uuidStr) {
+        if (null != bleService) {
+            bleService.setCharacteristicNotification(characteristic, enable, descriptorValue, uuidStr);
+        }
+    }
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             android.util.Log.d(TAG, "-------onServiceConnected()-------");
             bleService = ((BLEService.BluetoothBinder) service).getService();
+            bleService.setCallback(blueHandleCallback);
+            bleService.setBlueStateListener(BluetoothLE.this);
             android.util.Log.d(TAG, "BLEService = " + bleService);
         }
 
@@ -116,6 +135,11 @@ public class BluetoothLE extends BaseBluetooth {
             bleService = null;
         }
     };
+
+    @Override
+    public void updateBlueState(int state) {
+        status = state;
+    }
 
     static class MyScanCallback extends ScanCallback {
         private WeakReference<BluetoothLE> reference;
@@ -127,6 +151,7 @@ public class BluetoothLE extends BaseBluetooth {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
+            // TODO 扫描到device后可以跟你deviceName做初步过滤
             android.util.Log.d(TAG, "-----onScanResult()----ScanResult: " + result);
             if (null == reference || null == reference.get()) {
                 return;
@@ -159,6 +184,7 @@ public class BluetoothLE extends BaseBluetooth {
 
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            // TODO 扫描到device后可以跟你deviceName做初步过滤
             android.util.Log.d("bluetooth", "-----onLeScan()------device: " + device);
             if (null != reference || null != reference.get()) {
                 reference.get().listener.scannedDevice(device);

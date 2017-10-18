@@ -135,6 +135,21 @@ public class MainActivity extends BaseActivity<MainActView, MainPresenter> imple
     }
 
     @Override
+    public void onConnectFail() {
+        Toast.makeText(this, "onConnectFail()", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectSuccess() {
+        Toast.makeText(this, "onConnectSuccess()", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDisConnected() {
+        Toast.makeText(this, "onDisConnected()", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void bluetoothOn() {
         bluetoothStatus.setChecked(true);
     }
