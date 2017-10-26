@@ -90,6 +90,10 @@ public class SelfBluetoothManager {
         }
     }
 
+    public void stop() {
+
+    }
+
     public List<BluetoothGattService> getSupportedGattServices() {
         if (null != bluetooth && bluetooth instanceof BluetoothLE) {
             return ((BluetoothLE) bluetooth).getSupportedGattServices();
@@ -100,6 +104,12 @@ public class SelfBluetoothManager {
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enable, byte[] descriptorValue, String uuidStr) {
         if (null != bluetooth && bluetooth instanceof BluetoothLE) {
             ((BluetoothLE) bluetooth).setCharacteristicNotification(characteristic, enable, descriptorValue, uuidStr);
+        }
+    }
+
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (null != bluetooth && bluetooth instanceof BluetoothLE) {
+            ((BluetoothLE) bluetooth).writeCharacteristic(characteristic);
         }
     }
 }

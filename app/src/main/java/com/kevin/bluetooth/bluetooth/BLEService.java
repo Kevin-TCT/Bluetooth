@@ -112,6 +112,12 @@ public class BLEService extends Service {
         }
     }
 
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (null != bluetoothGatt) {
+            bluetoothGatt.writeCharacteristic(characteristic);
+        }
+    }
+
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
 
         @Override

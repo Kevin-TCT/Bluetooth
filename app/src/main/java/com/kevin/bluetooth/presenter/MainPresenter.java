@@ -7,10 +7,12 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 
 import com.kevin.bluetooth.bluetooth.BaseBluetooth;
+import com.kevin.bluetooth.bluetooth.BluetoothUtils;
 import com.kevin.bluetooth.bluetooth.ResultListener;
 import com.kevin.bluetooth.bluetooth.SelfBluetoothManager;
 import com.kevin.bluetooth.viewmodel.MainActView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -105,6 +107,7 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
 
     @Override
     public void onServicesDiscovered() {
+        boolean isHaveGatt = false; // 是否有自己需要关注的服务
         List<BluetoothGattService> gattServices = selfBluetoothManager.getSupportedGattServices();
         // TODO 只关注想关注的属性
         if (null != gattServices && gattServices.size() > 0) {
@@ -129,6 +132,10 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
                 }
             }
         }
+        if(!isHaveGatt) { // 连接上了，但是没有想要的服务，关闭Bluetooth，在重新连接
+            viewModel.onDisConnected();
+            selfBluetoothManager.stop();
+        }
     }
 
     /**
@@ -137,6 +144,18 @@ public class MainPresenter extends BasePresenter<MainActView> implements ResultL
      */
     @Override
     public void onCharacteristicChange(byte[] data) {
+        if (data == null || data.length > 0 || mWrightCharacteristic == null) {
+            return;
+        }
+        String dataStr = BluetoothUtils.bytesToHexString(data, data.length);
 
+        switch (data[0]) {
+            case 0x30:
+                // 给蓝牙设备反馈
+                byte[] byteW = new byte[] { (byte) 0xF1, 0x03, 0x36 };
+                mWrightCharacteristic.setValue(byteW);
+                selfBluetoothManager.writeCharacteristic(mWrightCharacteristic);
+                break;
+        }
     }
 }

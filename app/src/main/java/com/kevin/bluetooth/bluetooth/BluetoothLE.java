@@ -118,6 +118,13 @@ public class BluetoothLE extends BaseBluetooth implements BaseBluetooth.BlueStat
         }
     }
 
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (null != bleService) {
+            bleService.writeCharacteristic(characteristic);
+        }
+    }
+
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
