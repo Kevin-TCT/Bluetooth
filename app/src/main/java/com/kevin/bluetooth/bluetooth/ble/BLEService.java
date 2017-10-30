@@ -1,4 +1,4 @@
-package com.kevin.bluetooth.bluetooth;
+package com.kevin.bluetooth.bluetooth.ble;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -11,11 +11,12 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+
+import com.kevin.bluetooth.bluetooth.BaseBluetooth;
 
 import java.util.List;
 import java.util.UUID;

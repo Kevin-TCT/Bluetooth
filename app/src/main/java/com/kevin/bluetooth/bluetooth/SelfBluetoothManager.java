@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import com.kevin.bluetooth.bluetooth.ble.BluetoothLE;
+import com.kevin.bluetooth.bluetooth.standard.BluetoothStandard;
+
 import java.util.List;
 
 /**
@@ -30,11 +33,12 @@ public class SelfBluetoothManager {
         }
         //mBtAdapter.getBondedDevices()
         // 判断是否支持BLE
-        isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        //isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        isSupportBle = false;
         if (isSupportBle) {
             bluetooth = new BluetoothLE(context, mBtAdapter, listener, callback);
         } else {
-            bluetooth = new BluetoothStandard();
+            bluetooth = new BluetoothStandard(context, mBtAdapter, listener);
         }
     }
 

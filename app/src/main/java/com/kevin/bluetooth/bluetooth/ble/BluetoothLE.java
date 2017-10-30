@@ -1,4 +1,4 @@
-package com.kevin.bluetooth.bluetooth;
+package com.kevin.bluetooth.bluetooth.ble;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -15,6 +15,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
+
+import com.kevin.bluetooth.bluetooth.BaseBluetooth;
+import com.kevin.bluetooth.bluetooth.ResultListener;
+import com.kevin.bluetooth.bluetooth.ScanTimeoutHandler;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -103,6 +107,11 @@ public class BluetoothLE extends BaseBluetooth implements BaseBluetooth.BlueStat
         if (null != bleService) {
             bleService.disConnectedDevice();
         }
+    }
+
+    @Override
+    public void stop() {
+
     }
 
     public List<BluetoothGattService> getSupportedGattServices() {

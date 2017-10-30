@@ -23,6 +23,8 @@ public abstract class BaseBluetooth {
 
     public abstract void disConnectedDevice(BluetoothDevice device);
 
+    public abstract void stop();
+
     public interface BlueStateListener {
 
         void updateBlueState(int state);
