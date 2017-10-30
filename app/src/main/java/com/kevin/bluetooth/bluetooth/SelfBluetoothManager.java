@@ -33,8 +33,7 @@ public class SelfBluetoothManager {
         }
         //mBtAdapter.getBondedDevices()
         // 判断是否支持BLE
-        //isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-        isSupportBle = false;
+        isSupportBle = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (isSupportBle) {
             bluetooth = new BluetoothLE(context, mBtAdapter, listener, callback);
         } else {
